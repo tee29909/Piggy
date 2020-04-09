@@ -48,12 +48,6 @@
               </b-form>
             </div>
           </b-card>
-
-          <b-modal ref="my-modal" hide-footer title="Result">
-            <div class="d-block text-center">
-              <h3>{{ login }}</h3>
-            </div>
-          </b-modal>
         </b-col>
         <b-col></b-col>
       </b-row>
