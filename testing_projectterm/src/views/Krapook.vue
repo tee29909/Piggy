@@ -51,10 +51,22 @@
               ฝากเงิน
             </b-button>
             <b-modal
+              id="modal-from-confirm"
+              ref="modal-from-confirm"
+              title="Withdraw money over the available amount."
+              @ok="confirmOk"
+            >
+              <p class="my-4">
+                The amount requested is greater than the available amount. So we
+                have to withdraw the money until it reaches 0. Do you want to
+                withdraw it?
+              </p>
+            </b-modal>
+            <b-modal
               id="modal-from-Krapook"
               ref="modal-from-Krapook"
               :title="title"
-              @hidden="resetModal"
+              @show="resetModal"
               @ok="handleOk"
             >
               <form ref="form" @submit.stop.prevent="handleSubmit">
@@ -135,7 +147,7 @@ export default {
 
     resetModal: function () {
       this.form = {
-        userID: '',
+        userID: this.user._id,
         money: 0
       }
     },
@@ -144,6 +156,40 @@ export default {
 
       this.handleSubmit()
     },
+    confirmOk: function () {
+      console.log('confirmOk')
+
+      this.addWithdraw()
+      console.log('confirmOk')
+      this.$nextTick(() => {
+        this.$bvModal.hide('modal-from-confirm')
+      })
+    },
+    addDeposit: function () {
+      axios
+        .post('http://localhost:3000/account/deposit', this.form)
+        .then(res => {
+          console.log(res)
+          this.getKrapook()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    addWithdraw: function () {
+      axios
+        .post('http://localhost:3000/account/withdraw', this.form)
+        .then(res => {
+          console.log(res)
+          this.getKrapook()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    moneyWithdraw: function () {
+      return this.money.money >= this.form.money
+    },
 
     handleSubmit: function () {
       // check valid
@@ -151,30 +197,17 @@ export default {
         return
       }
       this.form.money = parseInt(this.form.money)
-      console.log(this.title)
+
       if (this.title === 'Withdraw') {
         // Push valid
         // this.updateUser(this.form)
-
-        axios
-          .post('http://localhost:3000/account/withdraw', this.form)
-          .then(res => {
-            console.log(res)
-            this.getKrapook()
-          })
-          .catch(err => {
-            console.log(err)
-          })
+        if (this.moneyWithdraw()) {
+          this.addWithdraw()
+        } else {
+          this.$bvModal.show('modal-from-confirm')
+        }
       } else {
-        axios
-          .post('http://localhost:3000/account/deposit', this.form)
-          .then(res => {
-            console.log(res)
-            this.getKrapook()
-          })
-          .catch(err => {
-            console.log(err)
-          })
+        this.addDeposit()
       }
 
       // Hide the modal manually

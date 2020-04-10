@@ -101,7 +101,7 @@ export default {
         .then(res => {
           console.log(res)
           if (this.form.username.length < 1 || this.form.password.length < 1) {
-            this.login = 'Please enter Username or Password '
+            this.login = 'Please enter Username and Password.'
             this.state = false
           } else if (res.data === null) {
             this.login = 'Username or Password Incorrect.'
