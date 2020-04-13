@@ -1,5 +1,14 @@
 <template>
   <div>
+    <b-alert
+      :show="dismissCountDown"
+      dismissible
+      variant="danger"
+      @dismissed="dismissCountDown = 0"
+      @dismiss-count-down="countDownChanged"
+    >
+     Unable to withdraw money because your money is 0
+    </b-alert>
     <b-container class="bv-example-row">
       <b-row>
         <b-col cols="3">
@@ -105,7 +114,7 @@
 </template>
 <script>
 import axios from 'axios'
-
+import krapookService from './krapookService'
 export default {
   data () {
     return {
@@ -129,7 +138,9 @@ export default {
       ],
       PiggyBank: [],
 
-      fields: ['date', 'type', 'money', 'total']
+      fields: ['date', 'type', 'money', 'total'],
+      dismissSecs: 5,
+      dismissCountDown: 0
     }
   },
   methods: {
@@ -185,10 +196,8 @@ export default {
         })
         .catch(err => {
           console.log(err)
+          this.showAlert()
         })
-    },
-    moneyWithdraw: function () {
-      return this.money.money >= this.form.money
     },
 
     handleSubmit: function () {
@@ -201,7 +210,7 @@ export default {
       if (this.title === 'Withdraw') {
         // Push valid
         // this.updateUser(this.form)
-        if (this.moneyWithdraw()) {
+        if (krapookService.moneyWithdraw(this.money.money, this.form.money)) {
           this.addWithdraw()
         } else {
           this.$bvModal.show('modal-from-confirm')
@@ -249,27 +258,15 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    showAlert () {
+      this.dismissCountDown = this.dismissSecs
+    },
+    countDownChanged (dismissCountDown) {
+      this.dismissCountDown = dismissCountDown
     }
   },
   computed: {
-    sumTotal () {
-      if (this.form.type !== 'Withdraw') {
-        if (this.form.money > this.money.money) {
-          return 0
-        } else {
-          return this.money.money - this.form.money
-        }
-      }
-      return this.money.money + this.form.money
-    },
-    addMoney () {
-      if (this.form.type !== 'Withdraw') {
-        if (this.form.money > this.money.money) {
-          return this.money.money
-        }
-      }
-      return this.money.money
-    },
     stateMoney () {
       return this.form.money > 0
     },

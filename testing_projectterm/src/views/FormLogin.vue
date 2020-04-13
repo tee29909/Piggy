@@ -56,6 +56,7 @@
 </template>
 <script>
 import axios from 'axios'
+import loginService from './loginService'
 export default {
   data () {
     return {
@@ -95,27 +96,33 @@ export default {
       //   console.log(error)
       //   this.resetText()
       // }
-
-      axios
-        .post('http://localhost:3000/login', this.form)
-        .then(res => {
-          console.log(res)
-          if (this.form.username.length < 1 || this.form.password.length < 1) {
-            this.login = 'Please enter Username and Password.'
-            this.state = false
-          } else if (res.data === null) {
-            this.login = 'Username or Password Incorrect.'
-            this.state = false
-          } else {
-            this.state = true
-            localStorage.setItem('user', JSON.stringify(res.data))
-            this.$router.push('/krapook')
-          }
-        })
-        .catch(err => {
-          alert(JSON.stringify('ไม่พบ username นี้'))
-          console.log(err)
-        })
+      if (
+        loginService.checkNullUsernameAndPasseord(
+          this.form.username,
+          this.form.password
+        )
+      ) {
+        this.login = 'Please enter Username and Password.'
+        this.state = false
+      } else {
+        axios
+          .post('http://localhost:3000/login', this.form)
+          .then(res => {
+            console.log(res)
+            if (loginService.checkNull(res.data)) {
+              this.login = 'Username or Password Incorrect.'
+              this.state = false
+            } else {
+              this.state = true
+              localStorage.setItem('user', JSON.stringify(res.data))
+              this.$router.push('/krapook')
+            }
+          })
+          .catch(err => {
+            alert(JSON.stringify('ไม่พบ username นี้'))
+            console.log(err)
+          })
+      }
     }
   },
   mounted () {
