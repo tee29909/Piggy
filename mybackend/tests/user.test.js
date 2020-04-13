@@ -175,5 +175,3 @@ describe("User", () => {
     expect(error).not.toBeNull();
   });
 });
-
-

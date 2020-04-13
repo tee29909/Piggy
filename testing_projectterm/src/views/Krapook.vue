@@ -7,7 +7,7 @@
       @dismissed="dismissCountDown = 0"
       @dismiss-count-down="countDownChanged"
     >
-     Unable to withdraw money because your money is 0
+     Unable to withdraw money because your money is 0.
     </b-alert>
     <b-container class="bv-example-row">
       <b-row>
